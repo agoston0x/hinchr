@@ -323,14 +323,9 @@ $('#lb-list').innerHTML=LB.map((r,i)=>`<div class="lbrow ${r.me?'me':''}"><div c
 async function qr(text){ return await QRCode.toString(text,{type:'svg',margin:0,errorCorrectionLevel:'M',color:{dark:'#0A0A14',light:'#00000000'}}); }
 function primaryAddr(){ return store.get('zklogin')?.addr || store.get('deviceKey')?.addr || null; }
 function connectURL(){ const a=primaryAddr(); return 'https://hinchr.app/u/'+(a||'guest'); }
-/* stylized QR glyph (simple vector icon, not a real code) */
-const QR_ICON=`<svg viewBox="0 0 100 100" width="100%" height="100%" fill="#0A0A14"><g>
-<rect x="0" y="0" width="32" height="32" rx="8"/><rect x="8" y="8" width="16" height="16" rx="4" fill="#fff"/>
-<rect x="68" y="0" width="32" height="32" rx="8"/><rect x="76" y="8" width="16" height="16" rx="4" fill="#fff"/>
-<rect x="0" y="68" width="32" height="32" rx="8"/><rect x="8" y="76" width="16" height="16" rx="4" fill="#fff"/>
-<rect x="44" y="44" width="13" height="13" rx="3"/><rect x="68" y="56" width="13" height="13" rx="3"/>
-<rect x="56" y="72" width="13" height="13" rx="3"/><rect x="87" y="70" width="13" height="13" rx="3"/><rect x="44" y="87" width="13" height="13" rx="3"/>
-</g></svg>`;
+/* QR glyph — matches pasted mark: 3 square finders + X cluster (vector icon, not a real code) */
+const FINDER=(x,y)=>`<rect x="${x}" y="${y}" width="42" height="42"/><rect x="${x+8}" y="${y+8}" width="26" height="26" fill="#fff"/><rect x="${x+15}" y="${y+15}" width="12" height="12"/>`;
+const QR_ICON=`<svg viewBox="0 0 100 100" width="100%" height="100%" fill="#0A0A14">${FINDER(0,0)}${FINDER(58,0)}${FINDER(0,58)}<rect x="58" y="58" width="12" height="12"/><rect x="88" y="58" width="12" height="12"/><rect x="73" y="73" width="12" height="12"/><rect x="58" y="88" width="12" height="12"/><rect x="88" y="88" width="12" height="12"/></svg>`;
 function paintCornerQRs(){ $$('[data-myqr]').forEach(b=>b.innerHTML=QR_ICON); }
 
 /* ---------- generic modal ---------- */
