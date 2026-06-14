@@ -1,21 +1,23 @@
 # Hinchr contracts
 
-## HinchrRegistrar.sol
+## HinchrNames.sol — membership-name registry (Sepolia)
 
-Mints `<label>.hinchr.eth` membership subdomains to fans on ENS (Sepolia testnet).
+Standalone registry that mints `<label>.hinchr.eth` membership names as ERC-721 NFTs
+in its **own** registry. It does **not** touch the real ENS tree, so no `hinchr.eth`
+ownership is needed — `baseDomain` is a cosmetic label. `register()` is a real
+on-chain mint; judges verify the tx + NFT on Sepolia Etherscan.
 
-**How it works**
-1. Owner of `hinchr.eth` authorises the registrar once:
-   `ENS.setApprovalForAll(<registrar address>, true)`.
-2. A fan (or a sponsored relayer, so the fan needs no gas) calls
-   `mint("elmuneco", <fanAddress>)`.
-3. The registrar creates the subnode, sets the resolver record to point the name
-   at the fan, then transfers the name to the fan. Emits `NameMinted`.
+### Deploy (Remix, no keys shared)
+1. remix.ethereum.org → new file → paste `HinchrNames.sol`.
+2. Compile (0.8.20+).
+3. Deploy & Run → Environment **Injected Provider (MetaMask on Sepolia)**.
+4. Constructor `_baseDomain` = `hinchr.eth` → Deploy. Fund the wallet with Sepolia
+   ETH from a faucet first.
+5. Copy the deployed **contract address** → hand it to the app to wire the mint.
 
-**Deploy params (Sepolia)**
-- `ens`      = `0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e` (ENS registry, same on Sepolia)
-- `resolver` = Sepolia public resolver
-- `rootNode` = `namehash("hinchr.eth")`
-
-The app's "Become a member" flow calls `mint(...)` (simulated in the demo build;
-swap the stub for a sponsored `mint` tx once `hinchr.eth` is held on Sepolia).
+### Real per-user minting from the app
+The app is a static (keyless) site, so it can't sign txs itself. Two options:
+- **Demo (recommended):** app shows the real contract address + a real example
+  `register()` tx (verifiable on Etherscan); in-app "mint" stays simulated.
+- **Fully live:** add a small relayer that holds a throwaway funded key and calls
+  `register(label, fanAddress)` — then the app's mint is a real tx per user.
