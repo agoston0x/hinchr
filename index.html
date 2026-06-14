@@ -131,10 +131,13 @@
   .tier.visitor{background:#eef1f4;color:#7b8794;} .tier.member{background:#e6f7ef;color:var(--ok);} .tier.superfan{background:#fff0e6;color:#ff7a3d;}
 
   /* rank scorecard */
-  .scorecard{background:#f4fbfd;border:1px solid #dceff6;border-radius:16px;padding:15px;margin-bottom:16px;}
-  .scorecard .big{font-size:32px;font-weight:800;line-height:1;color:var(--ink);}
+  .scorecard{background:#f4fbfd;border:1px solid #dceff6;border-radius:16px;padding:16px;margin-bottom:16px;}
+  .scorecard .big{font-size:36px;font-weight:800;line-height:1;color:var(--ink);} .scorecard .big .u{font-size:13px;color:var(--muted);font-weight:600;}
   .scorecard .lbl{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .scorecard .stats{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:8px;}
   .scorecard .disc{margin-top:11px;padding-top:11px;border-top:1px solid #dceff6;font-size:12.5px;font-weight:800;color:var(--ok);}
+  .lbgap{text-align:center;color:#c4ccd2;font-weight:800;letter-spacing:3px;padding:1px 0 7px;}
+  .showmore{width:100%;padding:13px;border:1px solid #e6e9ee;border-radius:14px;background:#fff;font:inherit;font-weight:700;font-size:13px;color:#3ab5cf;cursor:pointer;margin-top:4px;}
   .wid{display:flex;align-items:center;gap:10px;background:#0a0a14;color:#fff;border:0;border-radius:14px;padding:14px;width:100%;font:inherit;font-weight:800;font-size:14px;cursor:pointer;justify-content:center;margin-top:6px;}
   .spin{width:34px;height:34px;border:3px solid #e6e9ee;border-top-color:var(--cyan);border-radius:50%;margin:18px auto;animation:sp .8s linear infinite;} @keyframes sp{to{transform:rotate(360deg);}}
 </style>
@@ -380,17 +383,20 @@ function worldIdVerify(){
 
 /* ---------- rank: score breakdown ---------- */
 const SCORE={connections:24,games:7,drinks:12};
-function points(){ return SCORE.connections*120 + SCORE.games*400 + SCORE.drinks*150; } // = 7440-ish
+function points(){ return SCORE.connections*120 + SCORE.games*400 + SCORE.drinks*150; }
+let rankOpen=false;
+function lbRow(r,i){ return `<div class="lbrow ${r.me?'me':''}"><div class="pos ${i<3?'top':''}">${i===0?'🏆':i+1}</div><div class="av">${r.n[0].toUpperCase()}</div><div class="nm">${r.n}</div><div class="pts">${r.p.toLocaleString()}</div></div>`; }
 function renderRank(){
-  const p=points(); LB.find(r=>r.me).p=p;
-  LB.sort((a,b)=>b.p-a.p);
+  const p=points(); LB.find(r=>r.me).p=p; LB.sort((a,b)=>b.p-a.p);
   const disc = p>=9000?25 : p>=7000?15 : p>=4000?10 : 5;
-  $('#rank-top').innerHTML=`<div class="scorecard"><div class="lbl">your score</div><div class="big">${p.toLocaleString()}<span style="font-size:13px;color:var(--muted);font-weight:600"> pts</span></div>
-    <div class="kv" style="margin-top:8px">connections<span>${SCORE.connections} · ${SCORE.connections*120} pts</span></div>
-    <div class="kv">games attended<span>${SCORE.games} · ${SCORE.games*400} pts</span></div>
-    <div class="kv">drinks bought<span>${SCORE.drinks} · ${SCORE.drinks*150} pts</span></div>
-    <div class="disc">🎟️ unlocks ${disc}% off tickets & bar</div></div>`;
-  $('#lb-list').innerHTML=LB.map((r,i)=>`<div class="lbrow ${r.me?'me':''}"><div class="pos ${i<3?'top':''}">${i===0?'🏆':i+1}</div><div class="av">${r.n[0].toUpperCase()}</div><div class="nm">${r.n}</div><div class="pts">${r.p.toLocaleString()} <small>pts</small></div></div>`).join('');
+  $('#rank-top').innerHTML=`<div class="scorecard"><div class="lbl">your score</div><div class="big">${p.toLocaleString()}<span class="u"> pts</span></div><div class="stats">${SCORE.connections} connections · ${SCORE.games} games · ${SCORE.drinks} drinks</div><div class="disc">${disc}% off tickets &amp; bar</div></div>`;
+  const meIdx=LB.findIndex(r=>r.me);
+  let html;
+  if(rankOpen){ html=LB.map(lbRow).join(''); }
+  else { html=LB.slice(0,3).map(lbRow).join('') + (meIdx>2 ? `<div class="lbgap">···</div>`+lbRow(LB[meIdx],meIdx) : ''); }
+  html += `<button class="showmore" id="rank-more">${rankOpen?'Show less':'Show more'}</button>`;
+  $('#lb-list').innerHTML=html;
+  $('#rank-more').onclick=()=>{ rankOpen=!rankOpen; renderRank(); };
 }
 renderRank();
 
