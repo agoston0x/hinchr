@@ -76,7 +76,9 @@
 
   /* tickets */
   .ticket{display:flex; gap:13px; align-items:center; background:#fff; border:1px solid #e6e9ee; border-radius:16px; padding:13px; margin-bottom:11px;}
+  .ticket.used{background:#f5f6f8;}
   .ticket .stub{width:50px;height:50px;border-radius:11px;background:var(--cyan);display:grid;place-items:center;color:#06303a;font-weight:800;font-size:12px;flex:none;}
+  .ticket.used .stub{background:#c7ced6;color:#5b6670;}
   .ticket .info{flex:1;min-width:0;} .ticket .info b{font-size:16.5px;font-weight:700;} .ticket .info span{display:block;color:var(--muted);font-size:13.5px;margin-top:3px;font-weight:500;}
   .pill{font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap;} .pill.up{background:#e6f7ef;color:var(--ok);} .pill.used{background:#f0f1f3;color:var(--muted);}
 
@@ -389,7 +391,7 @@ $$('[data-myqr]').forEach(b=>b.addEventListener('click',async()=>{
 
 /* ---------- tickets (recent first, clickable) ---------- */
 function renderTickets(){
-  $('#ticket-list').innerHTML=TICKETS.map((t,i)=>`<div class="ticket" data-tidx="${i}"><div class="stub">${t.st==='up'?'NEXT':'PAST'}</div><div class="info"><b>${t.m}</b><span>${t.d}</span><span>${t.loc}</span></div><div class="pill ${t.st}">${t.st==='up'?'upcoming':'used'}</div></div>`).join('');
+  $('#ticket-list').innerHTML=TICKETS.map((t,i)=>`<div class="ticket ${t.st==='up'?'':'used'}" data-tidx="${i}"><div class="stub">${t.st==='up'?'NEXT':'PAST'}</div><div class="info"><b>${t.m}</b><span>${t.d}</span><span>${t.loc}</span></div><div class="pill ${t.st}">${t.st==='up'?'upcoming':'used'}</div></div>`).join('');
   $$('#ticket-list .ticket').forEach(el=>el.addEventListener('click',()=>openTicket(+el.dataset.tidx)));
 }
 async function openTicket(i){
