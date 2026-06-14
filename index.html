@@ -34,6 +34,16 @@
   @keyframes pop{to{opacity:1;transform:scale(1);}}
   @keyframes rise{to{opacity:1;transform:none;}}
 
+  /* ---------- onboarding ---------- */
+  #onboard{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 34px;text-align:center;}
+  #onboard .ob-logo{width:78px;height:auto;margin-bottom:20px;}
+  .ob-title{font-weight:800;font-size:42px;line-height:.92;letter-spacing:-0.04em;color:var(--ink);}
+  .ob-sub{color:var(--muted);font-size:14px;font-weight:500;margin:12px 0 28px;line-height:1.5;max-width:300px;}
+  .ob-steps{width:100%;display:flex;flex-direction:column;gap:13px;margin-bottom:26px;text-align:left;}
+  .ob-step{display:flex;align-items:center;gap:12px;font-size:14px;font-weight:600;color:var(--ink);}
+  #onboard .btn{width:100%;max-width:330px;}
+  .linkbtn{background:none;border:0;color:var(--muted);font:inherit;font-weight:600;font-size:13px;margin-top:16px;cursor:pointer;}
+
   /* ---------- header (home) ---------- */
   .hdr-logo{position:absolute; left:17px; top:20px; width:48px; height:66px;}
   .hdr-word{position:absolute; left:73px; top:32px;}
@@ -161,6 +171,24 @@
   <section class="screen active" id="splash">
     <svg class="lg" viewBox="0 0 281 386"><use href="#logo"/></svg>
     <div class="wm">Hinchr</div>
+  </section>
+
+  <!-- ===== ONBOARDING (first run) ===== -->
+  <section class="screen" id="onboard">
+    <svg class="ob-logo" viewBox="0 0 281 386"><use href="#logo"/></svg>
+    <div class="ob-title">Create your<br>account</div>
+    <p class="ob-sub" id="ob-sub">Your keys, your club. Make a passkey, then link Google to get your wallet.</p>
+    <div class="ob-steps">
+      <div class="ob-step"><span class="dot" id="ob-d1">1</span> Create a passkey</div>
+      <div class="ob-step"><span class="dot" id="ob-d2">2</span> Generate your device key</div>
+      <div class="ob-step"><span class="dot" id="ob-d3">3</span> Sign in with Google → Sui address</div>
+    </div>
+    <button class="btn primary" id="ob-passkey">Create passkey</button>
+    <button class="btn google" id="ob-google" style="display:none">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.6 2.4 30.1 0 24 0 14.6 0 6.4 5.4 2.5 13.3l7.9 6.1C12.3 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.9-9.9 6.9-17.4z"/><path fill="#FBBC05" d="M10.4 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.1 0 11.3-2 15-5.5l-7.3-5.7c-2 1.4-4.7 2.3-7.7 2.3-6.4 0-11.7-3.7-13.6-9.1l-7.9 6.1C6.4 42.6 14.6 48 24 48z"/></svg>
+      Continue with Google
+    </button>
+    <button class="linkbtn" id="ob-skip">Skip for now</button>
   </section>
 
   <!-- ===== HOME ===== -->
@@ -446,32 +474,52 @@ function restoreSteps(){
   const k=getKey(); if(k){setStep(2,'done',k.addr.slice(0,16)+'…');$('#btn-passkey').style.display='none';$('#btn-google').style.display='flex';}
   const zk=store.get('zklogin'); if(zk)setStep(3,'done',zk.addr.slice(0,14)+'…');
 }
+async function createPasskey(){
+  if(!window.PublicKeyCredential)throw new Error('WebAuthn unsupported');
+  const userId=crypto.getRandomValues(new Uint8Array(16));
+  const cred=await navigator.credentials.create({publicKey:{
+    challenge:crypto.getRandomValues(new Uint8Array(32)),
+    rp:{name:'Hinchr',id:location.hostname},
+    user:{id:userId,name:'hinchr-'+b64(userId).slice(0,6),displayName:'Hincha'},
+    pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+    authenticatorSelection:{residentKey:'preferred',userVerification:'preferred'},
+    extensions:{prf:{}},timeout:60000,
+  }});
+  const prf=cred.getClientExtensionResults?.().prf;
+  store.put('passkey',{id:cred.id,prf:!!prf?.enabled});
+  return !!prf?.enabled;
+}
+async function createDeviceKey(prf){
+  const kp=new Ed25519Keypair(),addr=kp.getPublicKey().toSuiAddress();
+  store.put('deviceKey',{addr,secret:kp.getSecretKey(),wrapped:false,prf});
+  return addr;
+}
+/* setup sheet button */
 $('#btn-passkey').addEventListener('click',async()=>{
   setStep(1,'active');
   try{
-    if(!window.PublicKeyCredential)throw new Error('WebAuthn unsupported');
-    const userId=crypto.getRandomValues(new Uint8Array(16));
-    const cred=await navigator.credentials.create({publicKey:{
-      challenge:crypto.getRandomValues(new Uint8Array(32)),
-      rp:{name:'Hinchr',id:location.hostname},
-      user:{id:userId,name:'hinchr-'+b64(userId).slice(0,6),displayName:'Hincha'},
-      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
-      authenticatorSelection:{residentKey:'preferred',userVerification:'preferred'},
-      extensions:{prf:{}},timeout:60000,
-    }});
-    const prf=cred.getClientExtensionResults?.().prf;
-    store.put('passkey',{id:cred.id,prf:!!prf?.enabled});
-    log('passkey: '+cred.id.slice(0,16)+'…  PRF='+(!!prf?.enabled));
-    setStep(1,'done','passkey ready'); await genKey(!!prf?.enabled);
+    const prf=await createPasskey(); log('passkey ready PRF='+prf); setStep(1,'done','passkey ready');
+    setStep(2,'active'); const addr=await createDeviceKey(prf); log('device key: '+addr); setStep(2,'done',addr.slice(0,16)+'…');
+    $('#btn-passkey').style.display='none';$('#btn-google').style.display='flex'; refreshProfile(); paintCornerQRs();
   }catch(e){log('✗ passkey: '+e.message);setStep(1,'',isMobile?'create on this phone':'desktop offers your phone via QR');}
 });
-async function genKey(prf){
-  setStep(2,'active');
-  const kp=new Ed25519Keypair(),addr=kp.getPublicKey().toSuiAddress();
-  store.put('deviceKey',{addr,secret:kp.getSecretKey(),wrapped:false,prf});
-  log('device key: '+addr); setStep(2,'done',addr.slice(0,16)+'…');
-  $('#btn-passkey').style.display='none';$('#btn-google').style.display='flex'; refreshProfile(); paintCornerQRs();
-}
+
+/* onboarding (first run) */
+function obStep(n,state){const d=$('#ob-d'+n);d.className='dot '+(state||'');if(state==='done')d.textContent='✓';else d.textContent=n;}
+$('#ob-passkey').addEventListener('click',async()=>{
+  $('#ob-passkey').disabled=true; obStep(1,'active');
+  $('#ob-sub').textContent=isMobile?'Confirm the passkey on this phone…':'Pick "use a phone" and scan with your camera…';
+  try{
+    const prf=await createPasskey(); obStep(1,'done');
+    obStep(2,'active'); const addr=await createDeviceKey(prf); obStep(2,'done');
+    obStep(3,'active');
+    $('#ob-passkey').style.display='none'; $('#ob-google').style.display='flex';
+    $('#ob-sub').textContent='Passkey ready. Link Google to create your Sui address.';
+    refreshProfile(); paintCornerQRs();
+  }catch(e){ toast('Passkey: '+e.message); $('#ob-passkey').disabled=false; obStep(1,''); $('#ob-sub').textContent='Your keys, your club. Make a passkey, then link Google to get your wallet.'; }
+});
+$('#ob-google').addEventListener('click',startZkLogin);
+$('#ob-skip').addEventListener('click',()=>go('home'));
 
 /* ---------- REAL zkLogin (Sui testnet) ---------- */
 const sui=new SuiClient({url:getFullnodeUrl('testnet')});
@@ -517,13 +565,14 @@ refreshProfile();
   if(location.hash.includes('id_token')){
     const addr=await completeZkLogin();
     refreshProfile(); paintCornerQRs();
-    go('profile');
-    if(addr) toast('Signed in — Sui address created');
+    go('home');
+    if(addr) toast('Welcome! Your Sui address is ready');
     return;
   }
   const deep=location.hash.replace('#/','');
-  if(['home','tickets','rank','profile'].includes(deep)){ go(deep); return; }
-  setTimeout(()=>go('home'),1900);
+  if(['home','onboard','tickets','rank','profile'].includes(deep)){ go(deep); return; }
+  const firstRun = !store.get('zklogin') && !store.get('deviceKey');
+  setTimeout(()=>go(firstRun?'onboard':'home'),1900);
 })();
 </script>
 </body>
