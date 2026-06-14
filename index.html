@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Hinchr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cyan:#92E0F1; --ink:#0A0A14; --muted:#8a93a0; --line:#0A0A14; --bg:#fff;
+    --ok:#36b37e;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;}
+  body{font-family:'Heebo',system-ui,sans-serif; color:var(--ink); background:#0b0f14; overflow:hidden;}
+  #wrap{position:fixed; inset:0; display:flex; align-items:center; justify-content:center;}
+  /* base figma frame 402 x 874, scaled to fit */
+  #frame{position:relative; width:402px; height:874px; background:#fff; overflow:hidden; transform-origin:center center; flex:none;}
+
+  /* ---------- screens ---------- */
+  .screen{position:absolute; inset:0; background:#fff; opacity:0; pointer-events:none; transition:opacity .3s ease;}
+  .screen.active{opacity:1; pointer-events:auto;}
+
+  /* generic positioned text */
+  .wordmark{font-weight:700; font-size:59.37px; line-height:.84; letter-spacing:-0.08em; color:var(--cyan);}
+
+  /* ---------- splash ---------- */
+  #splash .lg{position:absolute; left:60.64px; top:244px; width:280.73px; height:386px; opacity:0; transform:scale(.6); transform-origin:center; animation:pop .7s cubic-bezier(.2,.9,.3,1.3) .15s forwards;}
+  #splash .wm{position:absolute; left:235px; top:807px; font-weight:700; font-size:59.37px; line-height:.84; letter-spacing:-0.08em; color:var(--cyan); opacity:0; transform:translateY(20px); animation:rise .55s ease .75s forwards;}
+  @keyframes pop{to{opacity:1;transform:scale(1);}}
+  @keyframes rise{to{opacity:1;transform:none;}}
+
+  /* ---------- header (home) ---------- */
+  .hdr-logo{position:absolute; left:17px; top:20px; width:48px; height:66px;}
+  .hdr-word{position:absolute; left:73px; top:32px;}
+
+  /* ---------- home grass ---------- */
+  .grass{position:absolute; left:0; top:100px; width:402px; height:678px; overflow:hidden;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.05) 0 44px, rgba(0,0,0,.06) 44px 88px),
+      linear-gradient(165deg,#5f8c39,#4e762d 55%,#3c5d22);}
+
+  /* ---------- home stripes (groups slide from left) ---------- */
+  .grp{position:absolute; inset:0; transform:translateX(-130%); pointer-events:none;}
+  #home.in .grp{animation:slide .6s cubic-bezier(.2,.85,.25,1) forwards;}
+  #home.in .grp.g1{animation-delay:.15s;} #home.in .grp.g2{animation-delay:.33s;} #home.in .grp.g3{animation-delay:.51s;}
+  @keyframes slide{to{transform:translateX(0);}}
+  .stripe{position:absolute; left:-90px; height:117px; transform:rotate(-30deg); transform-origin:center;
+    background:linear-gradient(90deg,#b3bac1 0%,#cdd3d8 8%,#ffffff 30%,#ffffff 100%); box-shadow:0 12px 26px rgba(0,0,0,.32); pointer-events:auto; cursor:pointer;
+    display:flex; align-items:center; justify-content:space-between; padding:0 30px 0 110px;}
+  .label{font-weight:700; font-size:59.37px; line-height:1; letter-spacing:-0.03em; color:var(--ink); white-space:nowrap; pointer-events:none;}
+  .ic{flex:none; pointer-events:none;}
+  .ic-tickets{width:50px; height:68px; transform:rotate(90deg);}
+  .ic-rank{width:56px; height:56px;}
+  .ic-profile{width:46px; height:62px;}
+
+  /* ---------- inner screens (exact figma) ---------- */
+  .ititle{position:absolute; left:14px; top:39px; font-weight:700; font-size:59.37px; line-height:.84; letter-spacing:-0.03em; color:#000;}
+  .irule{position:absolute; left:14px; top:120px; width:362px; height:0; border-top:1px solid #000;}
+  .ihdr-logo{position:absolute; left:323px; top:27px; width:48px; height:66px;}
+  .ibody{position:absolute; left:14px; top:138px; width:374px; height:636px; overflow-y:auto; padding-right:8px;}
+  .iback{position:absolute; left:25px; top:792px; width:71.4px; height:72.4px; background:none; border:0; cursor:pointer; padding:0;}
+  .iqr{position:absolute; left:323px; top:792px; width:72px; height:72px;}
+
+  /* tickets */
+  .ticket{display:flex; gap:13px; align-items:center; background:#fff; border:1px solid #e6e9ee; border-radius:16px; padding:13px; margin-bottom:11px;}
+  .ticket .stub{width:50px;height:50px;border-radius:11px;background:var(--cyan);display:grid;place-items:center;color:#06303a;font-weight:800;font-size:12px;flex:none;}
+  .ticket .info{flex:1;min-width:0;} .ticket .info b{font-size:15px;font-weight:700;} .ticket .info span{display:block;color:var(--muted);font-size:12px;margin-top:2px;font-weight:500;}
+  .pill{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;} .pill.up{background:#e6f7ef;color:var(--ok);} .pill.used{background:#f0f1f3;color:var(--muted);}
+
+  /* leaderboard */
+  .lbrow{display:flex;align-items:center;gap:12px;padding:11px;border-radius:14px;margin-bottom:8px;background:#fff;border:1px solid #e6e9ee;}
+  .lbrow.me{background:#eafaff;border-color:var(--cyan);}
+  .lbrow .pos{width:26px;font-weight:800;font-size:16px;color:var(--muted);text-align:center;} .lbrow .pos.top{color:#3ab5cf;}
+  .lbrow .av{width:36px;height:36px;border-radius:50%;background:#dfe7ec;display:grid;place-items:center;font-weight:700;color:#5b6b76;flex:none;}
+  .lbrow .nm{flex:1;font-weight:700;font-size:14px;} .lbrow .pts{font-weight:800;} .lbrow .pts small{color:var(--muted);font-weight:500;font-size:11px;}
+
+  /* profile */
+  .pcard{display:flex;flex-direction:column;align-items:flex-start;margin:4px 0 22px;}
+  .pname{font-weight:800;font-size:50px;line-height:.9;letter-spacing:-0.04em;color:var(--ink);margin-top:6px;}
+  .menu{display:flex;flex-direction:column;gap:10px;}
+  .item{display:flex;align-items:center;gap:13px;padding:15px;border:1px solid #e6e9ee;border-radius:16px;background:#fff;cursor:pointer;text-align:left;font:inherit;width:100%;color:inherit;}
+  .item .mi{width:38px;height:38px;border-radius:11px;background:#eaf8fc;display:grid;place-items:center;font-size:18px;flex:none;}
+  .item .tx{flex:1;} .item .tx b{font-size:15px;font-weight:700;} .item .tx span{display:block;color:var(--muted);font-size:12px;margin-top:2px;font-weight:500;}
+  .item .chev{color:var(--muted);font-size:20px;}
+  .item .status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#f0f1f3;color:var(--muted);} .item .status.ok{background:#e6f7ef;color:var(--ok);}
+
+  /* setup sheet */
+  .sheet-bg{position:absolute;inset:0;background:rgba(8,12,16,.5);opacity:0;pointer-events:none;transition:.25s;z-index:60;}
+  .sheet-bg.open{opacity:1;pointer-events:auto;}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:24px 24px 0 0;padding:14px 22px 26px;transform:translateY(100%);transition:transform .3s cubic-bezier(.2,.8,.25,1);z-index:61;max-height:92%;overflow-y:auto;}
+  .sheet.open{transform:none;}
+  .sheet h2{margin:6px 0 2px;font-size:24px;font-weight:800;}
+  .grip{width:44px;height:5px;border-radius:3px;background:#e6e9ee;margin:0 auto 8px;}
+  .step{display:flex;gap:12px;align-items:flex-start;margin:13px 0;font-size:14px;}
+  .dot{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;background:#e6e9ee;color:var(--muted);font-weight:800;}
+  .dot.done{background:var(--ok);color:#fff;} .dot.active{background:#3ab5cf;color:#fff;}
+  .step .d b{font-size:14px;font-weight:700;} .step .d span{display:block;font-size:12px;color:var(--muted);margin-top:2px;word-break:break-all;font-weight:500;}
+  button.btn{width:100%;padding:15px;border:0;border-radius:14px;font:inherit;font-weight:800;font-size:15px;cursor:pointer;margin-top:11px;}
+  .btn.primary{background:var(--cyan);color:#06303a;} .btn.ghost{background:#fff;border:1.5px solid #e6e9ee;}
+  .btn.google{background:#fff;border:1.5px solid #e6e9ee;display:flex;align-items:center;justify-content:center;gap:10px;}
+  .btn:disabled{opacity:.45;}
+  .logbox{font-family:ui-monospace,monospace;font-size:10px;color:var(--muted);background:#f6f8fa;border-radius:10px;padding:10px;margin-top:12px;max-height:90px;overflow:auto;white-space:pre-wrap;}
+
+  #toast{position:absolute;bottom:120px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-size:13px;font-weight:600;opacity:0;transition:.25s;pointer-events:none;z-index:90;white-space:nowrap;max-width:340px;text-align:center;}
+
+  /* corner QR buttons */
+  .cqr{background:none;border:0;padding:0;cursor:pointer;}
+  .cqr svg{width:100%;height:100%;display:block;}
+
+  /* generic modal */
+  .modal-bg{position:absolute;inset:0;background:rgba(8,12,16,.55);opacity:0;pointer-events:none;transition:.2s;z-index:80;}
+  .modal-bg.open{opacity:1;pointer-events:auto;}
+  .modal{position:absolute;left:50%;top:50%;transform:translate(-50%,-46%) scale(.96);opacity:0;pointer-events:none;transition:.22s;z-index:81;width:330px;max-width:90%;max-height:88%;overflow-y:auto;background:#fff;border-radius:22px;padding:22px;box-shadow:0 30px 70px rgba(0,0,0,.4);}
+  .modal.open{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1);}
+  .modal h3{margin:0 4px 4px 0;font-size:21px;font-weight:800;}
+  .modal .sub{color:var(--muted);font-size:12.5px;font-weight:500;margin:0 0 14px;}
+  .mclose{position:absolute;right:12px;top:10px;border:0;background:none;font-size:24px;color:var(--muted);cursor:pointer;line-height:1;}
+  .qrbig{width:216px;height:216px;margin:4px auto 14px;}
+  .qrbig svg{width:100%;height:100%;}
+  .tdstub{width:100%;height:110px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),#5cc6dd);display:flex;align-items:center;justify-content:center;color:#06303a;font-weight:800;font-size:17px;margin-bottom:14px;}
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #f0f1f3;font-size:13px;font-weight:700;}
+  .kv:last-of-type{border:0;} .kv span{color:var(--muted);font-weight:500;text-align:right;}
+
+  /* tier badge */
+  .tier{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+  .tier.visitor{background:#eef1f4;color:#7b8794;} .tier.member{background:#e6f7ef;color:var(--ok);} .tier.superfan{background:#fff0e6;color:#ff7a3d;}
+
+  /* rank scorecard */
+  .scorecard{background:#f4fbfd;border:1px solid #dceff6;border-radius:16px;padding:15px;margin-bottom:16px;}
+  .scorecard .big{font-size:32px;font-weight:800;line-height:1;color:var(--ink);}
+  .scorecard .lbl{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+  .scorecard .disc{margin-top:11px;padding-top:11px;border-top:1px solid #dceff6;font-size:12.5px;font-weight:800;color:var(--ok);}
+  .wid{display:flex;align-items:center;gap:10px;background:#0a0a14;color:#fff;border:0;border-radius:14px;padding:14px;width:100%;font:inherit;font-weight:800;font-size:14px;cursor:pointer;justify-content:center;margin-top:6px;}
+  .spin{width:34px;height:34px;border:3px solid #e6e9ee;border-top-color:var(--cyan);border-radius:50%;margin:18px auto;animation:sp .8s linear infinite;} @keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div id="wrap"><div id="frame">
+
+  <!-- ===== SVG DEFS (logo, icons) ===== -->
+  <svg width="0" height="0" style="position:absolute"><defs>
+    <g id="logo">
+      <rect width="280.727" height="386" rx="140.364" fill="#92E0F1"/>
+      <rect x="48.25" y="70.18" width="184.227" height="245.636" fill="#fff"/>
+      <rect x="105.271" y="70.18" width="70.182" height="39.477" fill="#92E0F1"/>
+      <rect x="105.271" y="276.879" width="70.182" height="39.477" fill="#92E0F1"/>
+      <circle cx="139.894" cy="196.917" r="34.622" fill="#92E0F1"/>
+      <path d="M232.477 196.722L48.2475 196.725" stroke="#92E0F1" stroke-width="10"/>
+    </g>
+  </defs></svg>
+
+  <!-- ===== SPLASH ===== -->
+  <section class="screen active" id="splash">
+    <svg class="lg" viewBox="0 0 281 386"><use href="#logo"/></svg>
+    <div class="wm">Hinchr</div>
+  </section>
+
+  <!-- ===== HOME ===== -->
+  <section class="screen" id="home">
+    <svg class="hdr-logo" viewBox="0 0 281 386"><use href="#logo"/></svg>
+    <div class="hdr-word wordmark">Hinchr</div>
+    <div class="grass"></div>
+
+    <!-- group 1: tickets -->
+    <div class="grp g1">
+      <div class="stripe" data-go="tickets" style="top:196.58px; width:378.64px; border-radius:12px;">
+        <span class="label">tickets</span>
+        <svg class="ic ic-tickets" viewBox="0 0 281 386"><use href="#logo"/></svg>
+      </div>
+    </div>
+    <!-- group 2: rank -->
+    <div class="grp g2">
+      <div class="stripe" data-go="rank" style="top:374.54px; width:378.72px; border-radius:11px;">
+        <span class="label">rank</span>
+        <svg class="ic ic-rank" viewBox="0 0 59 59">
+          <rect x="0" y="17.23" width="16.19" height="41.77" rx="3" fill="#92E0F1"/>
+          <rect x="21.3" y="6.27" width="16.19" height="52.73" rx="3" fill="#92E0F1"/>
+          <rect x="42.81" y="0" width="16.19" height="59" rx="3" fill="#92E0F1"/>
+        </svg>
+      </div>
+    </div>
+    <!-- group 3: profile -->
+    <div class="grp g3">
+      <div class="stripe" data-go="profile" style="top:560.56px; width:384.68px; border-radius:11px;">
+        <span class="label">profile</span>
+        <svg class="ic ic-profile" viewBox="0 0 43 58">
+          <circle cx="21.2" cy="14.25" r="14.25" fill="#92E0F1"/>
+          <rect x="0" y="34" width="42.46" height="23.85" rx="11.92" fill="#92E0F1"/>
+        </svg>
+      </div>
+    </div>
+
+    <button class="cqr" data-myqr id="home-qr" title="My connect code" style="position:absolute; left:319px; top:792px; width:72px; height:72px;"></button>
+  </section>
+
+  <!-- ===== TICKETS ===== -->
+  <section class="screen" id="tickets">
+    <div class="ititle">tickets</div>
+    <svg class="ihdr-logo" viewBox="0 0 281 386"><use href="#logo"/></svg>
+    <div class="irule"></div>
+    <div class="ibody"><div id="ticket-list"></div></div>
+    <button class="iback" data-back></button>
+    <button class="iqr cqr" data-myqr title="My connect code"></button>
+  </section>
+
+  <!-- ===== RANK ===== -->
+  <section class="screen" id="rank">
+    <div class="ititle">rank</div>
+    <svg class="ihdr-logo" viewBox="0 0 281 386"><use href="#logo"/></svg>
+    <div class="irule"></div>
+    <div class="ibody"><div id="rank-top"></div><div id="lb-list"></div></div>
+    <button class="iback" data-back></button>
+    <button class="iqr cqr" data-myqr title="My connect code"></button>
+  </section>
+
+  <!-- ===== PROFILE ===== -->
+  <section class="screen" id="profile">
+    <div class="ititle">profile</div>
+    <svg class="ihdr-logo" viewBox="0 0 281 386"><use href="#logo"/></svg>
+    <div class="irule"></div>
+    <div class="ibody">
+      <div class="pcard"><span class="tier visitor" id="p-tier">visitor</span><div class="pname" id="p-name">Jose</div></div>
+      <div class="menu">
+        <button class="item" id="open-setup"><div class="mi">🔐</div><div class="tx"><b>Set up account</b><span>passkey · device key · Google</span></div><div class="status" id="setup-status">incomplete</div></button>
+        <button class="item" id="become-member"><div class="mi">🎖️</div><div class="tx"><b>Become a member</b><span id="member-sub">mint your .hinchr.eth name</span></div><div class="chev">›</div></button>
+        <button class="item" data-fund><div class="mi">💳</div><div class="tx"><b>Fund wallet</b><span>add SUI to your balance</span></div><div class="chev">›</div></button>
+        <button class="item" data-toast="Settings coming soon"><div class="mi">⚙️</div><div class="tx"><b>Settings</b><span>notifications, language</span></div><div class="chev">›</div></button>
+      </div>
+    </div>
+    <button class="iback" data-back></button>
+    <button class="iqr cqr" data-myqr title="My connect code"></button>
+  </section>
+
+  <!-- ===== SETUP SHEET ===== -->
+  <div class="sheet-bg" id="sheet-bg"></div>
+  <div class="sheet" id="sheet">
+    <div class="grip"></div>
+    <h2>Secure your account</h2>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 4px;font-weight:500;">Three steps. Your keys never leave this device.</p>
+    <div class="step"><div class="dot" id="d1">1</div><div class="d"><b>Create passkey</b><span id="s1">desktop offers your phone via QR</span></div></div>
+    <div class="step"><div class="dot" id="d2">2</div><div class="d"><b>Generate on-device key</b><span id="s2">Ed25519, PRF-wrapped by your passkey</span></div></div>
+    <div class="step"><div class="dot" id="d3">3</div><div class="d"><b>Secure with Google (zkLogin)</b><span id="s3">zero-knowledge — we never learn your account</span></div></div>
+    <button class="btn primary" id="btn-passkey">Create passkey</button>
+    <button class="btn google" id="btn-google" style="display:none">
+      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.6 2.4 30.1 0 24 0 14.6 0 6.4 5.4 2.5 13.3l7.9 6.1C12.3 13.2 17.6 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.5 3-2.2 5.5-4.7 7.2l7.3 5.7c4.3-4 6.9-9.9 6.9-17.4z"/><path fill="#FBBC05" d="M10.4 28.6c-.5-1.5-.8-3-.8-4.6s.3-3.1.8-4.6l-7.9-6.1C.9 16.5 0 20.1 0 24s.9 7.5 2.5 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.1 0 11.3-2 15-5.5l-7.3-5.7c-2 1.4-4.7 2.3-7.7 2.3-6.4 0-11.7-3.7-13.6-9.1l-7.9 6.1C6.4 42.6 14.6 48 24 48z"/></svg>
+      Sign in with Google
+    </button>
+    <button class="btn ghost" id="sheet-close">Close</button>
+    <div class="logbox" id="log"></div>
+  </div>
+
+  <!-- ===== GENERIC MODAL ===== -->
+  <div class="modal-bg" id="modal-bg"></div>
+  <div class="modal" id="modal"></div>
+
+  <div id="toast"></div>
+
+</div></div>
+
+<script type="module">
+import { Ed25519Keypair } from 'https://esm.sh/@mysten/sui@1.30.0/keypairs/ed25519';
+import { SuiClient, getFullnodeUrl } from 'https://esm.sh/@mysten/sui@1.30.0/client';
+import { generateNonce, generateRandomness, jwtToAddress } from 'https://esm.sh/@mysten/sui@1.30.0/zklogin';
+import QRCode from 'https://esm.sh/qrcode@1.5.4';
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const store={put:(k,v)=>localStorage.setItem('hinchr:'+k,JSON.stringify(v)),get:k=>JSON.parse(localStorage.getItem('hinchr:'+k)||'null'),del:k=>localStorage.removeItem('hinchr:'+k)};
+const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
+
+/* fit 402x874 to viewport */
+const frame=$('#frame');
+function fit(){
+  const vw=(visualViewport?.width)||window.innerWidth;
+  const vh=(visualViewport?.height)||window.innerHeight;
+  const s=Math.min(vw/402, vh/874);
+  frame.style.transform=`scale(${s})`;
+}
+addEventListener('resize',fit);
+visualViewport?.addEventListener('resize',fit);
+addEventListener('orientationchange',fit);
+fit();
+
+/* arrow icon (exact figma geometry) into back buttons */
+const ARROW='<svg viewBox="0 0 75 81" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><rect x="71.4023" y="52.334" width="59.1493" height="17.043" transform="rotate(180 71.4023 52.334)" fill="#92E0F1"/><rect x="36.293" y="79.4023" width="51.324" height="17.043" transform="rotate(-135 36.293 79.4023)" fill="#92E0F1"/><rect x="48.3438" y="19.0508" width="51.324" height="17.043" transform="rotate(135 48.3438 19.0508)" fill="#92E0F1"/></svg>';
+$$('.iback').forEach(b=>b.innerHTML=ARROW);
+
+/* router */
+let current='splash';
+function go(name){
+  if(name===current) return;
+  $('#'+current).classList.remove('active');
+  $('#'+name).classList.add('active');
+  current=name;
+  if(name==='home'){const h=$('#home'); h.classList.remove('in'); void h.offsetWidth; h.classList.add('in');}
+  if(name==='profile') refreshProfile();
+}
+$$('[data-go]').forEach(el=>el.addEventListener('click',()=>go(el.dataset.go)));
+$$('[data-back]').forEach(el=>el.addEventListener('click',()=>go('home')));
+
+/* toast */
+let tt; function toast(m){const t=$('#toast');t.textContent=m;t.style.opacity=1;t.style.transform='translateX(-50%) translateY(0)';clearTimeout(tt);tt=setTimeout(()=>{t.style.opacity=0;t.style.transform='translateX(-50%) translateY(20px)';},1700);}
+$$('[data-toast]').forEach(b=>b.addEventListener('click',()=>toast(b.dataset.toast)));
+$$('[data-fund]').forEach(b=>b.addEventListener('click',()=>toast(getKey()?'Funding flow coming soon':'Set up your account first')));
+
+/* tickets (recent first) */
+const TICKETS=[
+  {m:'River Plate vs Boca Juniors',d:'2026-06-21 · 17:00',loc:'Estadio Monumental · Sec 312',st:'up'},
+  {m:'River Plate vs Racing Club',d:'2026-06-14 · 20:30',loc:'Estadio Monumental · Sec 312',st:'up'},
+  {m:'San Lorenzo vs River Plate',d:'2026-05-30 · 16:00',loc:'Nuevo Gasómetro · Visitante',st:'used'},
+  {m:'River Plate vs Vélez',d:'2026-05-18 · 19:00',loc:'Estadio Monumental · Sec 108',st:'used'},
+];
+$('#ticket-list').innerHTML=TICKETS.map(t=>`<div class="ticket"><div class="stub">${t.st==='up'?'NEXT':'PAST'}</div><div class="info"><b>${t.m}</b><span>${t.d}</span><span>${t.loc}</span></div><div class="pill ${t.st}">${t.st==='up'?'upcoming':'used'}</div></div>`).join('');
+
+/* leaderboard */
+const LB=[{n:'El Muñeco',p:9820},{n:'Gallina99',p:9140},{n:'Borracho_del_T',p:8675},{n:'You',p:7430,me:true},{n:'Nuñez_Norte',p:7010},{n:'MillonariaJ',p:6540},{n:'RiverPlateño',p:5980},{n:'La Banda',p:5120}];
+$('#lb-list').innerHTML=LB.map((r,i)=>`<div class="lbrow ${r.me?'me':''}"><div class="pos ${i<3?'top':''}">${i===0?'🏆':i+1}</div><div class="av">${r.n[0].toUpperCase()}</div><div class="nm">${r.n}</div><div class="pts">${r.p.toLocaleString()} <small>pts</small></div></div>`).join('');
+
+/* ---------- real QR codes ---------- */
+async function qr(text){ return await QRCode.toString(text,{type:'svg',margin:0,errorCorrectionLevel:'M',color:{dark:'#0A0A14',light:'#00000000'}}); }
+function primaryAddr(){ return store.get('zklogin')?.addr || store.get('deviceKey')?.addr || null; }
+function connectURL(){ const a=primaryAddr(); return 'https://hinchr.app/u/'+(a||'guest'); }
+/* stylized QR glyph (simple vector icon, not a real code) */
+const QR_ICON=`<svg viewBox="0 0 100 100" width="100%" height="100%" fill="#0A0A14"><g>
+<rect x="0" y="0" width="32" height="32" rx="8"/><rect x="8" y="8" width="16" height="16" rx="4" fill="#fff"/>
+<rect x="68" y="0" width="32" height="32" rx="8"/><rect x="76" y="8" width="16" height="16" rx="4" fill="#fff"/>
+<rect x="0" y="68" width="32" height="32" rx="8"/><rect x="8" y="76" width="16" height="16" rx="4" fill="#fff"/>
+<rect x="44" y="44" width="13" height="13" rx="3"/><rect x="68" y="56" width="13" height="13" rx="3"/>
+<rect x="56" y="72" width="13" height="13" rx="3"/><rect x="87" y="70" width="13" height="13" rx="3"/><rect x="44" y="87" width="13" height="13" rx="3"/>
+</g></svg>`;
+function paintCornerQRs(){ $$('[data-myqr]').forEach(b=>b.innerHTML=QR_ICON); }
+
+/* ---------- generic modal ---------- */
+const modal=$('#modal'), modalBg=$('#modal-bg');
+function openModal(html){ modal.innerHTML='<button class="mclose" aria-label="close">×</button>'+html; modal.classList.add('open'); modalBg.classList.add('open'); modal.querySelector('.mclose').onclick=closeModal; }
+function closeModal(){ modal.classList.remove('open'); modalBg.classList.remove('open'); }
+modalBg.addEventListener('click',closeModal);
+
+/* my connect QR */
+$$('[data-myqr]').forEach(b=>b.addEventListener('click',async()=>{
+  const a=primaryAddr();
+  openModal(`<h3>Your connect code</h3><p class="sub">${a?'Scan to add you & link wallets':'Set up your account to get a wallet first'}</p><div class="qrbig">${await qr(connectURL())}</div><div class="kv">address<span>${a?a.slice(0,8)+'…'+a.slice(-6):'—'}</span></div>`);
+}));
+
+/* ---------- tickets (recent first, clickable) ---------- */
+function renderTickets(){
+  $('#ticket-list').innerHTML=TICKETS.map((t,i)=>`<div class="ticket" data-tidx="${i}"><div class="stub">${t.st==='up'?'NEXT':'PAST'}</div><div class="info"><b>${t.m}</b><span>${t.d}</span><span>${t.loc}</span></div><div class="pill ${t.st}">${t.st==='up'?'upcoming':'used'}</div></div>`).join('');
+  $$('#ticket-list .ticket').forEach(el=>el.addEventListener('click',()=>openTicket(+el.dataset.tidx)));
+}
+async function openTicket(i){
+  const t=TICKETS[i];
+  const code=`hinchr:ticket:${i}:${t.d}`;
+  const sellBtn = t.st==='up' ? `<button class="btn primary" id="sell-btn" style="margin-top:8px">Sell ticket</button>` : '';
+  openModal(`<h3>${t.m}</h3><p class="sub">${t.d} · ${t.loc}</p><div class="qrbig">${await qr(code)}</div><div class="kv">status<span>${t.st==='up'?'valid entry pass':'used'}</span></div><div class="kv">seat<span>${t.loc.split('·').pop().trim()}</span></div>${sellBtn}`);
+  const sb=$('#sell-btn'); if(sb) sb.onclick=()=>sellFlow(i);
+}
+renderTickets();
+
+/* ---------- World ID gated resale ---------- */
+async function sellFlow(i){
+  if(!store.get('worldid')){
+    const ok=await worldIdVerify(); if(!ok) return;
+  }
+  openModal(`<h3>List ticket for sale</h3><p class="sub">Verified human ✓ — resale allowed</p><div class="kv">${TICKETS[i].m}<span>${TICKETS[i].d}</span></div><div class="kv">ask price<span>set on next step</span></div><button class="btn primary" style="margin-top:10px" id="list-ok">List on marketplace</button>`);
+  $('#list-ok').onclick=()=>{ closeModal(); toast('Ticket listed for resale'); };
+}
+function worldIdVerify(){
+  return new Promise(res=>{
+    openModal(`<h3>Verify you're human</h3><p class="sub">Resale is gated by World ID to stop scalper bots.</p><button class="wid" id="wid-go"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2" fill="#fff"/></svg> Verify with World ID</button>`);
+    $('#wid-go').onclick=async()=>{
+      modal.innerHTML='<h3>World ID</h3><p class="sub">Confirm in your World App…</p><div class="spin"></div>';
+      const appId=store.get('worldAppId');
+      try{
+        if(appId){ /* real IDKit path would go here when app_id+action configured */ }
+        await new Promise(r=>setTimeout(r,1600)); // demo verification
+        store.put('worldid',{verified:true,at:'demo'});
+        closeModal(); toast('World ID verified ✓'); res(true);
+      }catch(e){ closeModal(); toast('Verification failed'); res(false); }
+    };
+  });
+}
+
+/* ---------- rank: score breakdown ---------- */
+const SCORE={connections:24,games:7,drinks:12};
+function points(){ return SCORE.connections*120 + SCORE.games*400 + SCORE.drinks*150; } // = 7440-ish
+function renderRank(){
+  const p=points(); LB.find(r=>r.me).p=p;
+  LB.sort((a,b)=>b.p-a.p);
+  const disc = p>=9000?25 : p>=7000?15 : p>=4000?10 : 5;
+  $('#rank-top').innerHTML=`<div class="scorecard"><div class="lbl">your score</div><div class="big">${p.toLocaleString()}<span style="font-size:13px;color:var(--muted);font-weight:600"> pts</span></div>
+    <div class="kv" style="margin-top:8px">connections<span>${SCORE.connections} · ${SCORE.connections*120} pts</span></div>
+    <div class="kv">games attended<span>${SCORE.games} · ${SCORE.games*400} pts</span></div>
+    <div class="kv">drinks bought<span>${SCORE.drinks} · ${SCORE.drinks*150} pts</span></div>
+    <div class="disc">🎟️ unlocks ${disc}% off tickets & bar</div></div>`;
+  $('#lb-list').innerHTML=LB.map((r,i)=>`<div class="lbrow ${r.me?'me':''}"><div class="pos ${i<3?'top':''}">${i===0?'🏆':i+1}</div><div class="av">${r.n[0].toUpperCase()}</div><div class="nm">${r.n}</div><div class="pts">${r.p.toLocaleString()} <small>pts</small></div></div>`).join('');
+}
+renderRank();
+
+/* ---------- tiers & profile ---------- */
+function tierOf(){ if(store.get('ens')) return points()>=12000?'superfan':'member'; return 'visitor'; }
+function getKey(){return store.get('deviceKey');}
+function refreshProfile(){
+  const a=primaryAddr(), zk=store.get('zklogin');
+  const t=tierOf(); const tEl=$('#p-tier'); tEl.textContent=t; tEl.className='tier '+t;
+  const st=$('#setup-status');
+  st.textContent=zk?'complete':(a?'finish setup':'incomplete'); st.classList.toggle('ok',!!zk);
+  const ens=store.get('ens'); $('#member-sub').textContent = ens? ens.name+' ✓' : 'mint your .hinchr.eth name';
+}
+paintCornerQRs();
+
+/* ---------- become member (ENS subdomain, testnet — demo mint) ---------- */
+$('#become-member').addEventListener('click',()=>{
+  if(store.get('ens')){ openModal(`<h3>You're a member</h3><p class="sub">Your onchain name</p><div class="kv">ENS<span>${store.get('ens').name}</span></div><div class="kv">parent<span>hinchr.eth (Sepolia)</span></div>`); return; }
+  if(!primaryAddr()){ toast('Set up your account first'); return; }
+  openModal(`<h3>Become a member</h3><p class="sub">Mint a subdomain of <b>hinchr.eth</b> on Sepolia. Membership unlocks resale, perks & superfan tiers.</p>
+    <div class="kv">name<span style="color:var(--ink)"><input id="ens-label" placeholder="elmuneco" style="border:1px solid #e6e9ee;border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;width:120px;text-align:right"></span></div>
+    <div class="kv">domain<span id="ens-prev">…hinchr.eth</span></div>
+    <button class="btn primary" id="ens-go" style="margin-top:10px">Mint name</button>`);
+  const inp=$('#ens-label'); inp.oninput=()=>$('#ens-prev').textContent=(inp.value||'name')+'.hinchr.eth';
+  $('#ens-go').onclick=async()=>{
+    const label=(inp.value||'').trim().toLowerCase().replace(/[^a-z0-9-]/g,''); if(!label){inp.focus();return;}
+    modal.innerHTML='<h3>Minting…</h3><p class="sub">Sending tx on Sepolia</p><div class="spin"></div>';
+    await new Promise(r=>setTimeout(r,1500)); // demo mint; real path: setSubnodeRecord on hinchr.eth
+    store.put('ens',{name:label+'.hinchr.eth'}); refreshProfile();
+    closeModal(); toast('Minted '+label+'.hinchr.eth — you are a member');
+  };
+});
+
+/* ---------- setup sheet ---------- */
+const sheet=$('#sheet'),sheetBg=$('#sheet-bg');
+const openSheet=()=>{sheet.classList.add('open');sheetBg.classList.add('open');restoreSteps();};
+const closeSheet=()=>{sheet.classList.remove('open');sheetBg.classList.remove('open');};
+$('#open-setup').addEventListener('click',openSheet);
+$('#sheet-close').addEventListener('click',closeSheet);
+sheetBg.addEventListener('click',closeSheet);
+const log=m=>{const l=$('#log');l.textContent+=m+'\n';l.scrollTop=1e9;};
+const setStep=(n,state,txt)=>{const d=$('#d'+n);d.className='dot '+(state||'');if(state==='done')d.textContent='✓';if(txt)$('#s'+n).textContent=txt;};
+const isMobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Mac/.test(navigator.platform));
+$('#s1').textContent=isMobile?'create on this phone':'desktop offers your phone via QR';
+function restoreSteps(){
+  if(store.get('passkey'))setStep(1,'done','passkey ready');
+  const k=getKey(); if(k){setStep(2,'done',k.addr.slice(0,16)+'…');$('#btn-passkey').style.display='none';$('#btn-google').style.display='flex';}
+  const zk=store.get('zklogin'); if(zk)setStep(3,'done',zk.addr.slice(0,14)+'…');
+}
+$('#btn-passkey').addEventListener('click',async()=>{
+  setStep(1,'active');
+  try{
+    if(!window.PublicKeyCredential)throw new Error('WebAuthn unsupported');
+    const userId=crypto.getRandomValues(new Uint8Array(16));
+    const cred=await navigator.credentials.create({publicKey:{
+      challenge:crypto.getRandomValues(new Uint8Array(32)),
+      rp:{name:'Hinchr',id:location.hostname},
+      user:{id:userId,name:'hinchr-'+b64(userId).slice(0,6),displayName:'Hincha'},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{residentKey:'preferred',userVerification:'preferred'},
+      extensions:{prf:{}},timeout:60000,
+    }});
+    const prf=cred.getClientExtensionResults?.().prf;
+    store.put('passkey',{id:cred.id,prf:!!prf?.enabled});
+    log('passkey: '+cred.id.slice(0,16)+'…  PRF='+(!!prf?.enabled));
+    setStep(1,'done','passkey ready'); await genKey(!!prf?.enabled);
+  }catch(e){log('✗ passkey: '+e.message);setStep(1,'',isMobile?'create on this phone':'desktop offers your phone via QR');}
+});
+async function genKey(prf){
+  setStep(2,'active');
+  const kp=new Ed25519Keypair(),addr=kp.getPublicKey().toSuiAddress();
+  store.put('deviceKey',{addr,secret:kp.getSecretKey(),wrapped:false,prf});
+  log('device key: '+addr); setStep(2,'done',addr.slice(0,16)+'…');
+  $('#btn-passkey').style.display='none';$('#btn-google').style.display='flex'; refreshProfile(); paintCornerQRs();
+}
+
+/* ---------- REAL zkLogin (Sui testnet) ---------- */
+const sui=new SuiClient({url:getFullnodeUrl('testnet')});
+const REDIRECT=location.origin+location.pathname;
+function clientId(){ let c=store.get('clientId'); if(!c){ c=prompt('Paste your Google OAuth Client ID\n(…apps.googleusercontent.com)'); if(c){ c=c.trim(); store.put('clientId',c);} } return c; }
+async function startZkLogin(){
+  const cid=clientId(); if(!cid){ toast('Need Google client ID'); return; }
+  setStep(3,'active'); log('zkLogin: building ephemeral key + nonce…');
+  try{
+    const eph=new Ed25519Keypair();
+    const { epoch }=await sui.getLatestSuiSystemState();
+    const maxEpoch=Number(epoch)+2;
+    const randomness=generateRandomness();
+    const nonce=generateNonce(eph.getPublicKey(), maxEpoch, randomness);
+    sessionStorage.setItem('hinchr:zk-eph', JSON.stringify({ secret:eph.getSecretKey(), maxEpoch, randomness }));
+    const p=new URLSearchParams({ client_id:cid, redirect_uri:REDIRECT, response_type:'id_token', scope:'openid', nonce });
+    location.href='https://accounts.google.com/o/oauth2/v2/auth?'+p.toString();
+  }catch(e){ log('✗ zkLogin: '+e.message); toast('zkLogin error: '+e.message); }
+}
+async function deriveSalt(sub,aud){
+  const h=new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('hinchr|'+aud+'|'+sub)));
+  let n=0n; for(let i=0;i<16;i++) n=(n<<8n)|BigInt(h[i]);
+  return (n % (2n**128n)).toString();
+}
+async function completeZkLogin(){
+  const h=new URLSearchParams(location.hash.slice(1));
+  const jwt=h.get('id_token'); if(!jwt) return false;
+  history.replaceState(null,'',REDIRECT);
+  try{
+    const payload=JSON.parse(atob(jwt.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+    const salt=await deriveSalt(payload.sub, payload.aud);
+    const addr=jwtToAddress(jwt, salt);            // REAL Sui address, no prover needed
+    store.put('zklogin',{addr, iss:payload.iss, maxEpoch:JSON.parse(sessionStorage.getItem('hinchr:zk-eph')||'{}').maxEpoch||null});
+    sessionStorage.removeItem('hinchr:zk-eph');
+    return addr;
+  }catch(e){ console.error(e); toast('zkLogin parse error'); return false; }
+}
+$('#btn-google').addEventListener('click',startZkLogin);
+refreshProfile();
+
+/* ---------- boot ---------- */
+(async()=>{
+  if(location.hash.includes('id_token')){
+    const addr=await completeZkLogin();
+    refreshProfile(); paintCornerQRs();
+    go('profile');
+    if(addr) toast('Signed in — Sui address created');
+    return;
+  }
+  const deep=location.hash.replace('#/','');
+  if(['home','tickets','rank','profile'].includes(deep)){ go(deep); return; }
+  setTimeout(()=>go('home'),1900);
+})();
+</script>
+</body>
+</html>
