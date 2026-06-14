@@ -584,8 +584,9 @@ $('#ob-passkey').addEventListener('click',async()=>{
     obStep(2,'active'); const addr=await createDeviceKey(prf); obStep(2,'done');
     obStep(3,'active');
     $('#ob-passkey').style.display='none'; $('#ob-google').style.display='flex';
-    $('#ob-sub').textContent='Passkey ready. Link Google to create your Sui address.';
+    $('#ob-sub').textContent='Passkey ready — taking you to Google…';
     refreshProfile(); paintCornerQRs();
+    setTimeout(()=>startZkLogin(), 900); // auto-advance to Google; button stays as fallback
   }catch(e){ toast('Passkey: '+e.message); $('#ob-passkey').disabled=false; obStep(1,''); $('#ob-sub').textContent='Your keys, your club. Make a passkey, then link Google to get your wallet.'; }
 });
 $('#ob-google').addEventListener('click',startZkLogin);
