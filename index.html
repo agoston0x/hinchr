@@ -79,25 +79,26 @@
   /* tickets */
   .ticket{display:flex; gap:13px; align-items:center; background:#fff; border:1px solid #e6e9ee; border-radius:16px; padding:13px; margin-bottom:11px;}
   .ticket .stub{width:50px;height:50px;border-radius:11px;background:var(--cyan);display:grid;place-items:center;color:#06303a;font-weight:800;font-size:12px;flex:none;}
-  .ticket .info{flex:1;min-width:0;} .ticket .info b{font-size:15px;font-weight:700;} .ticket .info span{display:block;color:var(--muted);font-size:12px;margin-top:2px;font-weight:500;}
-  .pill{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;} .pill.up{background:#e6f7ef;color:var(--ok);} .pill.used{background:#f0f1f3;color:var(--muted);}
+  .ticket .info{flex:1;min-width:0;} .ticket .info b{font-size:16.5px;font-weight:700;} .ticket .info span{display:block;color:var(--muted);font-size:13.5px;margin-top:3px;font-weight:500;}
+  .pill{font-size:12.5px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap;} .pill.up{background:#e6f7ef;color:var(--ok);} .pill.used{background:#f0f1f3;color:var(--muted);}
 
   /* leaderboard */
   .lbrow{display:flex;align-items:center;gap:12px;padding:11px;border-radius:14px;margin-bottom:8px;background:#fff;border:1px solid #e6e9ee;}
   .lbrow.me{background:#eafaff;border-color:var(--cyan);}
-  .lbrow .pos{width:26px;font-weight:800;font-size:16px;color:var(--muted);text-align:center;} .lbrow .pos.top{color:#3ab5cf;}
-  .lbrow .av{width:36px;height:36px;border-radius:50%;background:#dfe7ec;display:grid;place-items:center;font-weight:700;color:#5b6b76;flex:none;}
-  .lbrow .nm{flex:1;font-weight:700;font-size:14px;} .lbrow .pts{font-weight:800;} .lbrow .pts small{color:var(--muted);font-weight:500;font-size:11px;}
+  .lbrow .pos{width:28px;font-weight:800;font-size:18px;color:var(--muted);text-align:center;} .lbrow .pos.top{color:#3ab5cf;}
+  .lbrow .av{width:38px;height:38px;border-radius:50%;background:#dfe7ec;display:grid;place-items:center;font-weight:700;color:#5b6b76;flex:none;font-size:15px;}
+  .lbrow .nm{flex:1;font-weight:700;font-size:15.5px;} .lbrow .pts{font-weight:800;font-size:16px;} .lbrow .pts small{color:var(--muted);font-weight:500;font-size:12px;}
 
   /* profile */
-  .pcard{display:flex;flex-direction:column;align-items:flex-start;margin:4px 0 22px;}
+  .pcard{display:flex;flex-direction:column;align-items:flex-end;text-align:right;margin:4px 0 22px;}
   .pname{font-weight:800;font-size:50px;line-height:.9;letter-spacing:-0.04em;color:var(--ink);margin-top:6px;}
   .menu{display:flex;flex-direction:column;gap:10px;}
-  .item{display:flex;align-items:center;gap:13px;padding:15px;border:1px solid #e6e9ee;border-radius:16px;background:#fff;cursor:pointer;text-align:left;font:inherit;width:100%;color:inherit;}
-  .item .mi{width:38px;height:38px;border-radius:11px;background:#eaf8fc;display:grid;place-items:center;font-size:18px;flex:none;}
-  .item .tx{flex:1;} .item .tx b{font-size:15px;font-weight:700;} .item .tx span{display:block;color:var(--muted);font-size:12px;margin-top:2px;font-weight:500;}
-  .item .chev{color:var(--muted);font-size:20px;}
-  .item .status{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#f0f1f3;color:var(--muted);} .item .status.ok{background:#e6f7ef;color:var(--ok);}
+  .item{display:flex;align-items:center;gap:14px;padding:18px 16px;border:1px solid #e6e9ee;border-radius:16px;background:#fff;cursor:pointer;text-align:left;font:inherit;width:100%;color:inherit;}
+  .item .mi{width:42px;height:42px;border-radius:12px;background:#eaf8fc;display:grid;place-items:center;flex:none;color:#3ab5cf;}
+  .item .mi svg{width:22px;height:22px;}
+  .item .tx{flex:1;} .item .tx b{font-size:18px;font-weight:700;} .item .tx span{display:block;color:var(--muted);font-size:13.5px;margin-top:3px;font-weight:500;}
+  .item .chev{color:var(--muted);font-size:22px;}
+  .item .status{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:#f0f1f3;color:var(--muted);} .item .status.ok{background:#e6f7ef;color:var(--ok);}
 
   /* setup sheet */
   .sheet-bg{position:absolute;inset:0;background:rgba(8,12,16,.5);opacity:0;pointer-events:none;transition:.25s;z-index:60;}
@@ -137,17 +138,22 @@
   .kv:last-of-type{border:0;} .kv span{color:var(--muted);font-weight:500;text-align:right;}
 
   /* tier badge */
-  .tier{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+  .tier{display:inline-block;font-size:12px;font-weight:800;padding:4px 11px;border-radius:999px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
   .tier.visitor{background:#eef1f4;color:#7b8794;} .tier.member{background:#e6f7ef;color:var(--ok);} .tier.superfan{background:#fff0e6;color:#ff7a3d;}
 
   /* rank scorecard */
   .scorecard{background:#f4fbfd;border:1px solid #dceff6;border-radius:16px;padding:16px;margin-bottom:16px;}
   .scorecard .big{font-size:36px;font-weight:800;line-height:1;color:var(--ink);} .scorecard .big .u{font-size:13px;color:var(--muted);font-weight:600;}
   .scorecard .lbl{font-size:10.5px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
-  .scorecard .stats{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:8px;}
-  .scorecard .disc{margin-top:11px;padding-top:11px;border-top:1px solid #dceff6;font-size:12.5px;font-weight:800;color:var(--ok);}
+  .scorecard .stats{font-size:14px;color:var(--muted);font-weight:600;margin-top:8px;}
+  .scorecard .disc{margin-top:11px;padding-top:11px;border-top:1px solid #dceff6;font-size:14px;font-weight:800;color:var(--ok);}
   .lbgap{text-align:center;color:#c4ccd2;font-weight:800;letter-spacing:3px;padding:1px 0 7px;}
-  .showmore{width:100%;padding:13px;border:1px solid #e6e9ee;border-radius:14px;background:#fff;font:inherit;font-weight:700;font-size:13px;color:#3ab5cf;cursor:pointer;margin-top:4px;}
+  .showmore{width:100%;padding:13px;border:1px solid #e6e9ee;border-radius:14px;background:#fff;font:inherit;font-weight:700;font-size:14px;color:#3ab5cf;cursor:pointer;margin-top:4px;}
+  /* contacts list (modal) */
+  .ctrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f0f1f3;}
+  .ctrow:last-child{border:0;}
+  .ctav{width:38px;height:38px;border-radius:50%;background:var(--cyan);display:grid;place-items:center;font-weight:800;font-size:15px;color:#06303a;flex:none;}
+  .ctinfo b{font-size:15px;font-weight:700;} .ctinfo span{display:block;color:var(--muted);font-size:12.5px;font-weight:500;margin-top:1px;}
   .wid{display:flex;align-items:center;gap:10px;background:#0a0a14;color:#fff;border:0;border-radius:14px;padding:14px;width:100%;font:inherit;font-weight:800;font-size:14px;cursor:pointer;justify-content:center;margin-top:6px;}
   .spin{width:34px;height:34px;border:3px solid #e6e9ee;border-top-color:var(--cyan);border-radius:50%;margin:18px auto;animation:sp .8s linear infinite;} @keyframes sp{to{transform:rotate(360deg);}}
 </style>
@@ -263,10 +269,10 @@
     <div class="ibody">
       <div class="pcard"><span class="tier visitor" id="p-tier">visitor</span><div class="pname" id="p-name">Jose</div></div>
       <div class="menu">
-        <button class="item" id="open-setup"><div class="mi">🔐</div><div class="tx"><b>Set up account</b><span>passkey · device key · Google</span></div><div class="status" id="setup-status">incomplete</div></button>
-        <button class="item" id="become-member"><div class="mi">🎖️</div><div class="tx"><b>Become a member</b><span id="member-sub">mint your .hinchr.eth name</span></div><div class="chev">›</div></button>
-        <button class="item" data-fund><div class="mi">💳</div><div class="tx"><b>Fund wallet</b><span>add SUI to your balance</span></div><div class="chev">›</div></button>
-        <button class="item" data-toast="Settings coming soon"><div class="mi">⚙️</div><div class="tx"><b>Settings</b><span>notifications, language</span></div><div class="chev">›</div></button>
+        <button class="item" id="open-contacts"><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><path d="M16 6.5a3 3 0 0 1 0 5.4M18 19c0-2.3-1-3.8-2.5-4.6"/></svg></div><div class="tx"><b>Contacts</b><span id="contacts-sub">24 connections</span></div><div class="chev">›</div></button>
+        <button class="item" id="become-member"><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5"/><path d="M9 13.5 7.5 21 12 18.5 16.5 21 15 13.5"/></svg></div><div class="tx"><b>Become a member</b><span id="member-sub">mint your .hinchr.eth</span></div><div class="chev">›</div></button>
+        <button class="item" data-fund><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg></div><div class="tx"><b>Fund wallet</b><span>add SUI</span></div><div class="chev">›</div></button>
+        <button class="item" data-toast="Settings coming soon"><div class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M18.4 5.6l-1.8 1.8M7.4 16.6l-1.8 1.8"/></svg></div><div class="tx"><b>Settings</b><span>notifications, language</span></div><div class="chev">›</div></button>
       </div>
     </div>
     <button class="iback" data-back></button>
@@ -444,12 +450,26 @@ renderRank();
 function tierOf(){ if(store.get('ens')) return points()>=12000?'superfan':'member'; return 'visitor'; }
 function getKey(){return store.get('deviceKey');}
 function refreshProfile(){
-  const a=primaryAddr(), zk=store.get('zklogin');
   const t=tierOf(); const tEl=$('#p-tier'); tEl.textContent=t; tEl.className='tier '+t;
-  const st=$('#setup-status');
-  st.textContent=zk?'complete':(a?'finish setup':'incomplete'); st.classList.toggle('ok',!!zk);
-  const ens=store.get('ens'); $('#member-sub').textContent = ens? ens.name+' ✓' : 'mint your .hinchr.eth name';
+  const ens=store.get('ens'); $('#member-sub').textContent = ens? ens.name+' ✓' : 'mint your .hinchr.eth';
+  $('#contacts-sub').textContent = SCORE.connections+' connections';
 }
+
+/* contacts the fan has made */
+const CONTACTS=[
+  {n:'Diego R.',m:'River vs Boca · Sec 312'},
+  {n:'Lucía F.',m:'Monumental · bar'},
+  {n:'Martín S.',m:'River vs Racing'},
+  {n:'Sofía G.',m:'Peña Núñez Norte'},
+  {n:'Tomás P.',m:'River vs Vélez · Sec 108'},
+  {n:'Camila V.',m:'Superclásico away'},
+  {n:'Nacho M.',m:'Monumental · gate 5'},
+  {n:'Valentina L.',m:'River vs Racing · bar'},
+];
+$('#open-contacts').addEventListener('click',()=>{
+  const rows=CONTACTS.map(c=>`<div class="ctrow"><div class="ctav">${c.n[0]}</div><div class="ctinfo"><b>${c.n}</b><span>${c.m}</span></div></div>`).join('');
+  openModal(`<h3>Contacts</h3><p class="sub">${SCORE.connections} fans you've connected with</p>${rows}`);
+});
 paintCornerQRs();
 
 /* ---------- become member (ENS subdomain, testnet — demo mint) ---------- */
@@ -474,7 +494,7 @@ $('#become-member').addEventListener('click',()=>{
 const sheet=$('#sheet'),sheetBg=$('#sheet-bg');
 const openSheet=()=>{sheet.classList.add('open');sheetBg.classList.add('open');restoreSteps();};
 const closeSheet=()=>{sheet.classList.remove('open');sheetBg.classList.remove('open');};
-$('#open-setup').addEventListener('click',openSheet);
+$('#open-setup')?.addEventListener('click',openSheet);
 $('#sheet-close').addEventListener('click',closeSheet);
 sheetBg.addEventListener('click',closeSheet);
 const log=m=>{const l=$('#log');l.textContent+=m+'\n';l.scrollTop=1e9;};
