@@ -331,9 +331,8 @@ const frame=$('#frame');
 function fit(){
   const vw=(visualViewport?.width)||window.innerWidth;
   const vh=(visualViewport?.height)||window.innerHeight;
-  // phone: always fill width (ignore height so the URL bar collapsing can't shrink it).
-  // desktop: fit inside the window so the phone frame shows with its border.
-  const s = vw<=480 ? vw/402 : Math.min(vw/402, vh/874);
+  // Always fit the WHOLE 402x874 frame so top & bottom bars stay visible.
+  const s=Math.min(vw/402, vh/874);
   frame.style.transform=`scale(${s})`;
 }
 addEventListener('resize',fit);
