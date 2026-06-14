@@ -302,6 +302,12 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const store={put:(k,v)=>localStorage.setItem('hinchr:'+k,JSON.stringify(v)),get:k=>JSON.parse(localStorage.getItem('hinchr:'+k)||'null'),del:k=>localStorage.removeItem('hinchr:'+k)};
 const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b)));
 
+/* demo reset: hinchr.com/?reset wipes the account (keeps saved Google client id) and restarts onboarding */
+if(new URLSearchParams(location.search).has('reset')){
+  const cid=store.get('clientId'); localStorage.clear(); if(cid) store.put('clientId',cid);
+  history.replaceState(null,'',location.pathname);
+}
+
 /* fit 402x874 to viewport */
 const frame=$('#frame');
 function fit(){
